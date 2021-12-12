@@ -4,6 +4,7 @@
 #include "SerialDebugContext.h"
 #include "ConfigContext.h"
 #include "AdafruitIoContext.h"
+#include "IndicatorContext.h"
 
 #include <Dictionary.h>
 
@@ -15,6 +16,11 @@
 
 ConfigContext *configContext;
 AdafruitIoContext *adafruitIoContext;
+
+// ----- LED STUFF ----- //
+const uint16_t READY_LED = 15;
+const uint16_t CONNECTING_LED = 14;
+IndicatorContext indicate(READY_LED, CONNECTING_LED);
 
 // ----- IR Stuff ----- //
 // Because of how this Dictionary was implemented
@@ -42,7 +48,9 @@ void setup() {
         configContext->Config["adafruit-io"]["feed"],
         handleMessage
     );
+    indicate.SetStatus(Connecting);
     adafruitIoContext->Connect();
+    indicate.SetStatus(Ready);
 }
 
 void loop() {
