@@ -15,9 +15,12 @@ void IndicatorContext::SetStatus(Status status) {
         digitalWrite(_connectingLed, HIGH);
         digitalWrite(_readyLed, LOW);
     }
-    else if (status == Ready)
-    {
+    else if (status == Ready) {
         digitalWrite(_connectingLed, LOW);
+        digitalWrite(_readyLed, HIGH);
+    }
+    else if (status == IrPrograming) {
+        digitalWrite(_connectingLed, HIGH);
         digitalWrite(_readyLed, HIGH);
     }
 }

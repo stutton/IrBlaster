@@ -5,6 +5,7 @@
 #include "ConfigContext.h"
 #include "AdafruitIoContext.h"
 #include "IndicatorContext.h"
+#include "ButtonContext.h"
 
 #include <Dictionary.h>
 
@@ -12,7 +13,6 @@
 #include <IRremoteESP8266.h>
 #include <IRsend.h>
 #include <Dictionary.h>
-
 
 ConfigContext *configContext;
 AdafruitIoContext *adafruitIoContext;
@@ -22,16 +22,23 @@ const uint16_t READY_LED = 15;
 const uint16_t CONNECTING_LED = 14;
 IndicatorContext indicate(READY_LED, CONNECTING_LED);
 
-// ----- IR Stuff ----- //
+// ----- BUTTON STUFF ----- //
+const uint16_t BUTTON_PIN = 10;
+ButtonContext *buttons;
+bool learningMode = false;
+
+// ----- IR STUFF ----- //
 // Because of how this Dictionary was implemented
 // it cannot be referenced in a class and we have to
-// keep all references the main ino file.
+// keep all references in the main ino file.
 // See: https://github.com/arkhipenko/Dictionary/issues/4
 Dictionary &irCodes = *(new Dictionary(20));
 const uint16_t IR_LED = 4;
 IRsend irSend(IR_LED);
 
 void setup() {
+    buttons = new ButtonContext(handleButtonPress, BUTTON_PIN);
+
     SerialDebugContext::connectSerialDebugging();
 
     configContext = new ConfigContext();
@@ -56,6 +63,7 @@ void setup() {
 void loop() {
     // Wait for messages to come in
     adafruitIoContext->Run();
+    buttons->Run();
 }
 
 void handleMessage(AdafruitIO_Data *data) {
@@ -73,6 +81,12 @@ void handleMessage(AdafruitIO_Data *data) {
     for (JsonObject cmd : cmds) {
         String codeName = cmd["send"];
         blastCode(codeName);
+    }
+}
+
+void handleButtonPress(int buttonState) {
+    if (buttonState == HIGH) {
+        indicate.SetStatus(IrPrograming);
     }
 }
 

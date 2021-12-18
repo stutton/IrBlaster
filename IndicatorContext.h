@@ -5,7 +5,8 @@
 
 enum Status {
     Connecting,
-    Ready
+    Ready,
+    IrPrograming
 };
 
 class IndicatorContext {
